@@ -1,0 +1,431 @@
+#!/bin/bash
+# Bootora shell functions
+
+# Extract function for various archive formats
+extract() {
+    if [ -f "$1" ]; then
+        case $1 in
+            *.tar.bz2)   tar xjf "$1"     ;;
+            *.tar.gz)    tar xzf "$1"     ;;
+            *.bz2)       bunzip2 "$1"     ;;
+            *.rar)       unrar x "$1"     ;;
+            *.gz)        gunzip "$1"      ;;
+            *.tar)       tar xf "$1"      ;;
+            *.tbz2)      tar xjf "$1"     ;;
+            *.tgz)       tar xzf "$1"     ;;
+            *.zip)       unzip "$1"       ;;
+            *.Z)         uncompress "$1"  ;;
+            *.7z)        7z x "$1"        ;;
+            *.xz)        unxz "$1"        ;;
+            *.exe)       cabextract "$1"  ;;
+            *)           echo "'$1': unrecognized file compression" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# Create directory and cd into it
+mkd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Make a temporary directory and enter it
+function td() {
+	local dir
+	if [ $# -eq 0 ]; then
+		dir=$(mktemp -d)
+	else
+		dir=$(mktemp -d -t "${1}.XXXXXXXXXX")
+	fi
+	cd "$dir" || exit
+}
+
+# Create a data URL from a file
+function dataurl() {
+	local mimeType=$(file -b --mime-type "$1");
+	if [[ $mimeType == text/* ]]; then
+		mimeType="${mimeType};charset=utf-8";
+	fi
+	echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')";
+}
+
+function shorturl() {
+    if [ -z "$1" ]; then
+        echo "Use: shorturl <URL>"
+        return 1
+    fi
+
+    local shortened_url=$(curl -s "https://tinyurl.com/api-create.php?url=${1}")
+
+    if [ $? -eq 0 ]; then
+        echo "URL Shortened: $shortened_url"
+
+        # Copia para o clipboard
+        if command -v xclip &> /dev/null; then
+            echo -n "$shortened_url" | xclip -selection clipboard
+            echo "Shortened URL copied to clipboard."
+        elif command -v pbcopy &> /dev/null; then
+            echo -n "$shortened_url" | pbcopy
+            echo "Shortened URL copied to clipboard."
+        else
+            echo "Shortened URL, but could not copy to clipboard. Install xclip or pbcopy."
+        fi
+    else
+        echo "Error shortening the URL on the https://tinyurl.com service."
+        return 1
+    fi
+}
+
+# Find and kill process by name
+kp() {
+    ps aux | grep "$1" | grep -v grep | awk '{print $2}' | xargs kill -9
+}
+
+# Quick backup function
+bkp() {
+    cp "$1" "${1}.backup.$(date +%Y%m%d_%H%M%S)"
+}
+
+# Find large files
+fl() {
+    find . -type f -size +${1:-100M} -exec ls -lh {} \; | awk '{ print $9 ": " $5 }'
+}
+
+# Git functions
+gitignore() {
+    curl -sLw "\n" "https://www.gitignore.io/api/$1"
+}
+
+# Docker functions
+dockerclean() {
+    docker system prune -af
+    docker volume prune -f
+}
+
+dockerstop() {
+    docker stop $(docker ps -aq)
+}
+
+dockerrm() {
+    docker rm $(docker ps -aq)
+}
+
+# Network functions
+port() {
+    ss -tulpn | grep ":$1"
+}
+
+# Show all the names (CNs and SANs) listed in the SSL certificate
+# for a given domain
+function getcertnames() {
+	if [ -z "${1}" ]; then
+		echo "ERROR: No domain specified.";
+		return 1;
+	fi;
+
+	local domain="${1}";
+	echo "Testing ${domain}…";
+	echo ""; # newline
+
+	local tmp=$(echo -e "GET / HTTP/1.0\nEOT" \
+		| openssl s_client -connect "${domain}:443" -servername "${domain}" 2>&1);
+
+	if [[ "${tmp}" = *"-----BEGIN CERTIFICATE-----"* ]]; then
+		local certText=$(echo "${tmp}" \
+			| openssl x509 -text -certopt "no_aux, no_header, no_issuer, no_pubkey, \
+			no_serial, no_sigdump, no_signame, no_validity, no_version");
+		echo "Common Name:";
+		echo ""; # newline
+		echo "${certText}" | grep "Subject:" | sed -e "s/^.*CN=//" | sed -e "s/\/emailAddress=.*//";
+		echo ""; # newline
+		echo "Subject Alternative Name(s):";
+		echo ""; # newline
+		echo "${certText}" | grep -A 1 "Subject Alternative Name:" \
+			| sed -e "2s/DNS://g" -e "s/ //g" | tr "," "\n" | tail -n +2;
+		return 0;
+	else
+		echo "ERROR: Certificate not found.";
+		return 1;
+	fi;
+}
+
+# UTF-8-encode a string of Unicode symbols
+function uniencode() {
+	local args
+	mapfile -t args < <(printf "%s" "$*" | xxd -p -c1 -u)
+	printf "\\\\x%s" "${args[@]}"
+	# print a newline unless we’re piping the output to another program
+	if [ -t 1 ]; then
+		echo ""; # newline
+	fi
+}
+
+# Decode \x{ABCD}-style Unicode escape sequences
+function unidecode() {
+	perl -e "binmode(STDOUT, ':utf8'); print \"$*\""
+	# print a newline unless we’re piping the output to another program
+	if [ -t 1 ]; then
+		echo ""; # newline
+	fi
+}
+
+# `treel` is a shorthand for `tree` with hidden files and color enabled, ignoring
+# the `.git` directory, listing directories first. The output gets piped into
+# `less` with options to preserve color and line numbers, unless the output is
+# small enough for one screen.
+function treel() {
+	tree -aC -I '.git|node_modules' --dirsfirst "$@" | less -FRNX;
+}
+
+# Check if uri is up
+function isup() {
+	local uri=$1
+
+	if curl -s --head --request GET "$uri" | grep "200 OK" > /dev/null; then
+		notify-send --urgency=low "All Ok! $uri is up"
+	else
+		notify-send --urgency=critical "Critical! $uri is down"
+	fi
+}
+
+# Copy w/ progress
+function cpr () {
+  rsync -WavP --human-readable --progress $1 $2
+}
+
+# take this repo and copy it to somewhere else minus the .git stuff.
+function gitexport(){
+	local branch="${2:-main}";
+	mkdir -p "$1"
+	git archive "$branch" | tar -x -C "$1"
+}
+
+# System info function
+sysinfo() {
+    echo "=== System Information ==="
+    echo "Hostname: $(hostname)"
+    echo "OS: $(cat /etc/os-release | grep PRETTY_NAME | cut -d'"' -f2)"
+    echo "Kernel: $(uname -r)"
+    echo "Uptime: $(uptime -p)"
+    echo "CPU: $(lscpu | grep 'Model name' | cut -d':' -f2 | xargs)"
+    echo "Memory: $(free -h | grep Mem | awk '{print $3 "/" $2}')"
+    echo "Disk: $(df -h / | tail -1 | awk '{print $3 "/" $2 " (" $5 " used)"}')"
+}
+
+# `o` with no arguments opens the current directory, otherwise opens the given
+# location
+function o() {
+	if [ $# -eq 0 ]; then
+		xdg-open . > /dev/null 2>&1;
+	else
+		xdg-open "$@" > /dev/null 2>&1;
+	fi;
+}
+
+# Development functions
+
+# Start an HTTP server from a directory, optionally specifying the port
+function server() {
+	local port="${1:-8000}";
+    local directory_publish="."
+    if [ ! -z "${2}" ]; then
+        directory_publish=${2}
+    fi
+	python3 -m http.server ${port} --bind 0.0.0.0 --directory ${directory_publish}
+}
+
+jsonformat() {
+    if [ -n "$1" ] && [ -f "$1" ]; then
+        python3 -m json.tool "$1"
+    else
+        echo "$@" | python3 -m json.tool
+    fi
+}
+
+# Quick note function
+note() {
+    echo "$(date): $*" >> "$HOME/Documents/notes.txt"
+}
+
+viewnotes() {
+    cat "$HOME/Documents/notes.txt"
+}
+
+# Project initialization
+# Initialize a project in ~/Develop/personal or ~/Develop/work
+initproject() {
+    local type="personal"
+    local name=""
+
+    case "$1" in
+        --p) type="personal"; name="$2" ;;
+        --w) type="work"; name="$2" ;;
+        *)   name="$1" ;;  # Default to personal
+    esac
+
+    if [ -z "$name" ]; then
+        echo "Usage: initproject [--p|--w] <project-name>"
+        return 1
+    fi
+
+    local base_dir="$HOME/Develop/$type"
+    local project_dir="$base_dir/$name"
+
+    mkdir -p "$project_dir"
+    cd "$project_dir" || return 1
+
+    git init
+    echo "# $name" > README.md
+    echo "Project '$name' initialized in '$project_dir' (type: $type)"
+}
+
+######## AWS
+
+# Get currently logged in aws account name
+function awsaccount() {
+  aws iam list-account-aliases | jq ".AccountAliases[0]" -r
+}
+
+# List all clusters for the current role
+function awslistclusters() {
+  aws ecs list-clusters | jq -r '.clusterArns|map((./"/")[1])|.[]'
+}
+
+# List all services for the specified cluster
+function awslistservices() {
+  aws ecs list-services --cluster $1 | jq -r '.serviceArns|map((./"/")[1])|.[]'
+}
+
+# List all services by cluster for the current role
+function awslistservicesbycluster() {
+  local clusters services
+  clusters=($(awslistclusters))
+  for c in "${clusters[@]}"; do
+    services=($(awslistservices $c))
+    for s in "${services[@]}"; do
+      echo "$c $s"
+    done
+    [[ ${#services[@]} > 0 ]] && echo
+  done
+}
+
+# List all aws tasks for the given cluster and service
+function awslisttasks() {
+  aws ecs list-tasks --cluster $1 --service-name $2 \
+    | jq -r '.taskArns|map((./"/")[1])|.[]'
+}
+
+# List task definitions for all running tasks for the given cluster and service
+function awslisttaskdefinitions() {
+  local t=$(aws ecs describe-tasks --cluster $1 --tasks $(awslisttasks $1 $2))
+  echo $t | jq -r '.tasks|map((.taskDefinitionArn/"/")[1])|.[]'
+}
+
+# Return the current task definition for the given cluster and service
+function awstaskdefinition() {
+  local tds
+  if [[ "$1" =~ : ]]; then
+    tds=($1)
+  else
+    tds=($(awslisttaskdefinitions $1 $2 | uniq))
+    shift
+  fi
+  shift
+  for td in "${tds[@]}"; do
+    aws ecs describe-task-definition --task-definition $td | jq "$@"
+  done
+}
+
+# List all diffs over time for a given task definition env vars
+function awstaskdefinitionenvhistory() {
+  local cur=$2 max=$3 next diff a b
+  [[ ! "$cur" ]] && cur=0
+  [[ ! "$max" ]] && max=9999
+  if [[ $(($cur+1-1)) != "$cur" || $(($max+1-1)) != "$max" ]]; then
+    echo "Usage: aws-task-definition-env-history td-name [start-rev] [end-rev]"
+    return 1
+  fi
+  while [[ $cur != $max ]]; do
+    next=$((cur+1))
+    b=$(awstaskdefinitionenv $1:$next 2>/dev/null | sort)
+    if [[ ! "$b" ]]; then
+      echo "No more revisions."
+      return
+    fi
+    a=
+    if [[ $cur != 0 ]]; then
+      echo -ne "\rComparing revisions $cur and $next..." 1>&2
+      a=$(awstaskdefinitionenv $1:$cur 2>/dev/null | sort)
+    fi
+    diff=$(diff <(echo "$a") <(echo "$b"))
+    if [[ "$diff" ]]; then
+      echo -ne '\r' 1>&2
+      if [[ $cur == 0 ]]; then
+        echo "Initial values"
+      else
+        echo "Differences between revisions $cur and $next"
+      fi
+      echo "-------------------------------------------"
+      echo "$diff"
+      echo "==========================================="
+    fi
+    cur=$((cur+1))
+  done
+}
+
+# Print out VAR=VALUE lines for env of the current task definition for the given
+# cluster and service
+function awstaskdefinitionenv() {
+  awstaskdefinition "$@" \
+    -r '.taskDefinition.containerDefinitions[0].environment|map(.name+"="+.value)|.[]'
+}
+
+# Stop all aws tasks for the given cluster and service
+function awsstoptasks() {
+  local tasks count cluster pad s t
+  cluster=$1; shift
+  for s in "$@"; do
+    [[ "$pad" ]] && echo; pad=1
+    echo "Finding tasks for service <$s> on cluster <$cluster>"
+    tasks=($(awslisttasks $cluster $s))
+    count=${#tasks[@]}
+    if [[ $count == 0 ]]; then
+      echo "No tasks found, skipping"
+      continue
+    fi
+    echo "${#tasks[@]} task(s) found"
+    for t in "${tasks[@]}"; do
+      echo "Stopping task $t"
+      aws ecs stop-task --cluster $cluster --task $t --query 'task.stoppedReason' --output=text
+    done
+  done
+}
+
+# Bookmark functions
+go() {
+    local bookmark=$(grep "^$1=" ~/.bookmarks 2>/dev/null | cut -d'=' -f2)
+    if [ -n "$bookmark" ]; then
+        cd "$bookmark"
+    else
+        echo "Bookmark '$1' not found"
+        echo "Available bookmarks:"
+        cat ~/.bookmarks | grep -v '^#' | cut -d'=' -f1
+    fi
+}
+
+bookmark() {
+    if [ -z "$1" ]; then
+        echo "Usage: bookmark <name>"
+        return 1
+    fi
+    echo "$1=$(pwd)" >> ~/.bookmarks
+    echo "Bookmarked $(pwd) as '$1'"
+}
+
+bookmarks() {
+    echo "Available bookmarks:"
+    cat ~/.bookmarks | grep -v '^#' | while IFS='=' read -r name path; do
+        printf "  %-15s %s\n" "$name" "$path"
+    done
+}

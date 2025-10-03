@@ -1,0 +1,148 @@
+# General
+alias h="history"
+alias open='xdg-open'
+alias :q=exit
+
+# Development aliases
+alias py='python3'
+alias pip='pip3'
+alias urlencode='python3 -c "import sys, urllib.parse as ul; print(ul.quote_plus(sys.argv[1]))"'
+alias urldecode='python3 -c "import sys, urllib.parse as ul; print(ul.unquote_plus(sys.argv[1]))"'
+
+# Git aliases
+alias g="git"
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gcam='git commit -a -m'
+alias gcad='git commit -a --amend'
+alias gp='git push'
+alias gl='git log --oneline'
+alias gd='git diff'
+alias gb='git branch'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias gm='git merge'
+alias gr='git rebase'
+alias gf='git fetch'
+alias gpl='git pull'
+
+# Docker aliases
+alias d='docker'
+alias dps='docker ps'
+alias dpsa='docker ps -a'
+alias di='docker images'
+alias dex='docker exec -it'
+alias dlog='docker logs'
+alias dc='docker-compose'
+alias dcup='docker-compose up -d'
+alias dcdown='docker-compose down'
+alias dclogs='docker-compose logs -f'
+
+# Kubernetes aliases
+alias k='kubectl'
+alias kgp='kubectl get pods'
+alias kgs='kubectl get services'
+alias kgd='kubectl get deployments'
+alias kdp='kubectl describe pod'
+alias kds='kubectl describe service'
+alias kdd='kubectl describe deployment'
+alias kaf='kubectl apply -f'
+alias kdf='kubectl delete -f'
+
+# System aliases
+alias ll='ls -alFh'
+alias la='ls -A'
+alias l='ls -CF'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ~='cd ~'
+alias -- -='cd -'
+alias mkdir='mkdir -pv'
+alias rmdir='rmdir -v'
+alias cp='cp -iv'
+alias mv='mv -iv'
+alias rm='rm -Iv'
+alias ln='ln -iv'
+alias chmod='chmod --preserve-root'
+alias chown='chown --preserve-root'
+alias chgrp='chgrp --preserve-root'
+
+# Package management
+alias dnfi='sudo dnf install'
+alias dnfs='dnf search'
+alias dnfu='sudo dnf update'
+alias dnfr='sudo dnf remove'
+alias dnfh='dnf history'
+alias dnfc='sudo dnf clean all'
+
+# Flatpak aliases
+alias fpi='flatpak install'
+alias fps='flatpak search'
+alias fpu='flatpak update'
+alias fpr='flatpak uninstall'
+alias fpl='flatpak list'
+
+# Development servers
+alias nodeserver='npx http-server -p 8000'
+alias reactdev='npm start'
+alias vuedev='npm run serve'
+
+# Text processing
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias diff='diff --color=auto'
+
+# System monitoring
+alias meminfo='free -m -l -t'
+alias psmem='ps auxf | sort -nr -k 4'
+alias psmem10='ps auxf | sort -nr -k 4 | head -10'
+alias pscpu='ps auxf | sort -nr -k 3'
+alias pscpu10='ps auxf | sort -nr -k 3 | head -10'
+alias cpuinfo='lscpu'
+alias gpumeminfo='grep -Ei --color "MemTotal|MemFree|MemAvailable|Buffers|Cached|SwapTotal|SwapFree" /proc/meminfo'
+
+# Disk usage
+alias du='du -kh'
+alias df='df -h'
+alias dus='du -sh * | sort -hr'
+
+# Archive operations
+alias mktar='tar -cvf'
+alias mkbz2='tar -cvjf'
+alias mkgz='tar -cvzf'
+alias untar='tar -xvf'
+alias unbz2='tar -xvjf'
+alias ungz='tar -xvzf'
+
+# Date and time
+alias now='date +"%T"'
+alias nowdate='date +"%d-%m-%Y"'
+alias nowtime='date +"%d-%m-%Y %T"'
+
+# Network aliases
+alias ports='ss -tulanp'
+alias listening='ss -tln'
+alias ping='ping -c 5'
+alias wget='wget -c'
+alias curl='curl -L'
+alias flush="dscacheutil -flushcache"
+alias ips="ip -o addr show | awk '{if (\$3 == \"inet\") {print \$2 \": \" \$4 \" (IPv4)\"} else {print \$2 \": \" \$4 \" (IPv6)\"}}' | sed 's/\/[0-9]*//'"
+alias weather='curl wttr.in'
+alias pubip="curl -s https://checkip.amazonaws.com"
+alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
+
+# Quick edits
+alias bashrc='$EDITOR ~/.bashrc'
+alias zshrc='$EDITOR ~/.zshrc'
+alias vimrc='$EDITOR ~/.vimrc'
+alias hosts='sudo $EDITOR /etc/hosts'
+
+# copy working directory
+alias cwd='pwd | tr -d "\r\n" | xclip -selection clipboard'
+
+# Pipe my public key to my clipboard.
+alias pubkey="more ~/.ssh/id_ed25519.pub | xclip -selection clipboard | echo '=> Public key copied to pasteboard.'"
