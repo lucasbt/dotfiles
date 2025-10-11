@@ -1,0 +1,42 @@
+[alias]
+	st = status
+	co = checkout
+	br = branch -vv
+	cm = commit -m
+	ca = commit -am
+	unstage = reset HEAD --
+	last = log -1 HEAD
+	visual = !gitk
+    lg = log --graph --pretty=format:'%C(yellow)%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+[user]
+	name = Lucas Bittencourt
+	email = lucasbt@gmail.com
+[merge]
+	conflictStyle = zdiff3
+	tool = meld
+[mergetool "meld"]
+    cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
+    prompt = false
+[credential]
+	helper = cache --timeout=3600
+[init]
+	defaultBranch = main
+[pull]
+	rebase = false
+[core]
+	editor = nano
+	pager = delta
+[color]
+	ui = auto
+[push]
+	default = simple
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    navigate = true
+    dark = true
+    line-numbers = true
+    side-by-side = true
+    syntax-theme = Monokai Extended
+[diff]
+    tool = meld
