@@ -1,6 +1,6 @@
 REPO_URL = https://github.com/lucasbt/dotfiles.git
 INSTALL_DIR = $(HOME)/.dotfiles
-
+.SILENT:
 .PHONY: install clean
 
 install:
