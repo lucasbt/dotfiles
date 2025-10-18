@@ -4,11 +4,11 @@ INSTALL_DIR = $(HOME)/.dotfiles
 .PHONY: install clean
 
 install:
-	@echo "🔧 Aplicando dotfiles com stow..."
+	@echo "🔧 Applying dotfiles with stow..."
 	cd $(INSTALL_DIR) && stow dots
-	@echo "✅ Dotfiles aplicados com sucesso!"
+	@echo "✅ Dotfiles applied successfully!"
 
 clean:
-	@echo "🧹 Removendo symlinks com stow..."
+	@echo "🧹 Removing symlinks with stow..."
 	cd $(INSTALL_DIR) && stow -D dots
-	@echo "✅ Symlinks removidos!"
+	@echo "✅ Symlinks removed!"
