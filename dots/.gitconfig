@@ -57,11 +57,20 @@
 [user]
 	name = Lucas Bittencourt
 	email = lucasbt@gmail.com
+
+#[user]
+#  name =
+#  email =
+#[github]
+#  user =
+#  token =
+
 [merge]
 	conflictStyle = zdiff3
 	tool = meld
 	# Include summaries of merged commits in newly created merge commit messages
 	log = true
+	branchdesc = true
 [mergetool "meld"]
     cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
     prompt = false
@@ -85,7 +94,7 @@
 	editor = nano
 	pager = delta
 [commit]
-
+    verbose = true
 	# https://help.github.com/articles/signing-commits-using-gpg/
 	#gpgsign = true
 [color]
@@ -107,7 +116,7 @@
 	changed = green
 	untracked = cyan
 [push]
-	default = simple
+	default = upstream
 	# Make `git push` push relevant annotated tags when pushing branches out.
 	followTags = true
 [interactive]
@@ -138,21 +147,17 @@
 # URL shorthands
 
 [url "git@github.com:"]
-
 	insteadOf = "gh:"
 	pushInsteadOf = "github:"
 	pushInsteadOf = "git://github.com/"
 
 [url "git://github.com/"]
-
 	insteadOf = "github:"
 
 [url "git@gist.github.com:"]
-
 	insteadOf = "gst:"
 	pushInsteadOf = "gist:"
 	pushInsteadOf = "git://gist.github.com/"
 
 [url "git://gist.github.com/"]
-
 	insteadOf = "gist:"
