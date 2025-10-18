@@ -103,3 +103,14 @@ zle -N fzf-file-widget fzf_lazy
 if (( $+commands[starship] )); then
     eval "$(starship init zsh)"
 fi
+
+# Added by Bootora
+export PATH="/usr/local/go/bin:$PATH"
+export GOPATH="/home/lucas/go"
+export PATH="/home/lucas/.local/bin:$PATH"
+export PATH="/home/lucas/.cargo/bin:$PATH"
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
