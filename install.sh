@@ -69,7 +69,7 @@ stow "$DOTFILES_DIR"
 # 🧩 Create manual symbolic links for specific files outside stow's normal scope
 echo "🔗 Creating manual symbolic links..."
 
-STOWDIR="$DEST/$DOTFILES_DIR"
+STOWDIR="$DEST"
 
 # Ensure target directories exist before linking
 mkdir -p "$HOME/.local/bin"
