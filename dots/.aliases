@@ -135,7 +135,6 @@ alias nowdate='date +"%d-%m-%Y"'
 alias nowtime='date +"%d-%m-%Y %T"'
 
 # Network aliases
-alias ports='ss -tulanp'
 alias listening='ss -tln'
 alias ping='ping -c 5'
 alias wget='wget -c'
