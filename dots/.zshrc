@@ -60,6 +60,7 @@ export BOOTORA_HOME="$HOME/.local/share/bootora"
 SSH_ENV="$HOME/.ssh/agent.env"
 
 start_agent() {
+    setopt nullglob
     /usr/bin/ssh-agent -s | sed 's/^echo/#echo/' > "$SSH_ENV"
     chmod 600 "$SSH_ENV"
     source "$SSH_ENV" > /dev/null
@@ -68,6 +69,7 @@ start_agent() {
     for key in ~/.ssh/*_rsa ~/.ssh/id_ed25519 ~/.ssh/*.key; do
         [ -f "$key" ] && ssh-add "$key" 2>/dev/null
     done
+    unsetopt nullglob
 }
 
 load_agent() {
