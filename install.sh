@@ -93,7 +93,7 @@ if [ -e "$SRC_BW_KEY" ]; then
   fi
 
   ln -sf "$SRC_BW_KEY" "$DST_BW_KEY"
-  chmod +x DST_BW_KEY
+  chmod +x SRC_BW_KEY
   echo "✅ Linked $DST_BW_KEY → $SRC_BW_KEY"
 else
   echo "⚠️ Source $SRC_BW_KEY not found, skipping link."
