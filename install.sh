@@ -119,17 +119,4 @@ fi
 echo "✅ Dotfiles applied successfully!"
 echo "📁 Backup saved at: $BACKUP_DIR"
 
-# 🔄 Reload shell configurations
-echo "🔄 Reloading shell configuration files..."
-
-if [ -f "$HOME/.zshrc" ]; then
-  echo "↪️ Sourcing ~/.zshrc"
-  source "$HOME/.zshrc"
-fi
-
-if [ -f "$HOME/.bashrc" ]; then
-  echo "↪️ Sourcing ~/.bashrc"
-  source "$HOME/.bashrc"
-fi
-
-echo "✅ Shell configurations reloaded!"
+echo "➡️ Please run 'source ~/.zshrc' or restart your terminal to apply the changes."
