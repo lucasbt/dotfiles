@@ -30,8 +30,8 @@ setopt AUTO_CD CORRECT
 # =========================
 # Load aliases and functions
 # =========================
-[ -f ~/.bash_aliases ] && source ~/.bash_aliases
-[ -f ~/.bash_functions ] && source ~/.bash_functions
+[ -f ~/.aliases ] && source ~/.aliases
+[ -f ~/.functions ] && source ~/.functions
 [ -f ~/.dev_aliases ] && source ~/.dev_aliases
 
 # =========================
@@ -63,7 +63,11 @@ start_agent() {
     /usr/bin/ssh-agent -s | sed 's/^echo/#echo/' > "$SSH_ENV"
     chmod 600 "$SSH_ENV"
     source "$SSH_ENV" > /dev/null
-    ssh-add ~/.ssh/*_rsa ~/.ssh/id_ed25519 ~/.ssh/*.key 2>/dev/null
+
+    # Adicionar chaves somente se existirem
+    for key in ~/.ssh/*_rsa ~/.ssh/id_ed25519 ~/.ssh/*.key; do
+        [ -f "$key" ] && ssh-add "$key" 2>/dev/null
+    done
 }
 
 load_agent() {
@@ -113,4 +117,3 @@ export PATH="~/.cargo/bin:$PATH"
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
