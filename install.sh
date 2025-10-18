@@ -35,9 +35,16 @@ else
   echo "✅ Stow is already installed."
 fi
 
-# 📥 Clone the dotfiles repository
-echo "📥 Cloning repository into $DEST..."
-git clone "$REPO_URL" "$DEST"
+# 📥 Clone or update the dotfiles repository
+if [ ! -d "$DEST/.git" ]; then
+  echo "📥 Cloning repository into $DEST..."
+  git clone "$REPO_URL" "$DEST"
+else
+  echo "🔄 Repository already exists. Updating..."
+  cd "$DEST"
+  git fetch origin
+  git reset --hard origin/main
+fi
 
 cd "$DEST"
 
