@@ -3,8 +3,8 @@
 set -e
 
 REPO_URL="https://github.com/lucasbt/dotfiles.git"
-DEST="$HOME/dotfiles"
-DOTFILES_DIR="dotfiles"
+DEST="$HOME/.dotfiles"
+DOTFILES_DIR="dots"
 
 echo "📥 Clonando repositório em $DEST..."
 git clone "$REPO_URL" "$DEST"
