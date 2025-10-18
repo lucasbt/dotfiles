@@ -144,7 +144,7 @@
 	# Show most recently changed branches first.
 	sort = -committerdate
 
-# URL shorthands
+# URL shorthands for GH
 
 [url "git@github.com:"]
 	insteadOf = "gh:"
@@ -161,3 +161,24 @@
 
 [url "git://gist.github.com/"]
 	insteadOf = "gist:"
+
+# URL shorthands for GitLab
+
+[url "git@gitlab.com:"]
+	insteadOf = "gl:"
+	pushInsteadOf = "gitlab:"
+	pushInsteadOf = "git://gitlab.com/"
+
+[url "git://gitlab.com/"]
+	insteadOf = "gitlab:"
+
+# URL shorthands for Bitbucket
+
+[url "git@bitbucket.org:"]
+	insteadOf = "bb:"
+	pushInsteadOf = "bitbucket:"
+	pushInsteadOf = "git://bitbucket.org/"
+
+[url "git://bitbucket.org/"]
+	insteadOf = "bitbucket:"
+

@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+# Lista de itens do Bitwarden contendo chaves SSH
+BW_SSH_ITEM_NAMES=("github-ssh" "gitlab-ssh" "bitbucket-ssh")
+BW_SSH_FIELD_NAME=".sshKey.privateKey"
+
+TEMP_KEY_FILES=()
+
+cleanup() {
+  for TEMP_KEY_FILE in "${TEMP_KEY_FILES[@]:-}"; do
+    if [[ -n "$TEMP_KEY_FILE" && -e "$TEMP_KEY_FILE" ]]; then
+      if mountpoint -q "$(dirname "$TEMP_KEY_FILE")"; then
+        rm -f "$TEMP_KEY_FILE"
+      else
+        shred -u -z -n 3 "$TEMP_KEY_FILE" 2>/dev/null || rm -f "$TEMP_KEY_FILE"
+      fi
+    fi
+  done
+  unset PRIVATE_KEY
+  unset SESSION
+
+  # Encerra sessão do Bitwarden
+  if command -v bw >/dev/null 2>&1; then
+    bw logout >/dev/null 2>&1 || true
+  fi
+}
+trap cleanup EXIT
+
+# Verifica dependências
+for cmd in bw jq ssh-add; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "Erro: '$cmd' não está instalado." >&2
+    exit 2
+  fi
+done
+
+# Usa ssh-agent existente ou inicia um novo
+if [[ -z "${SSH_AUTH_SOCK:-}" ]] || ! ssh-add -l >/dev/null 2>&1; then
+  eval "$(ssh-agent -s)" >/dev/null
+fi
+
+# Login ou unlock no Bitwarden
+SESSION="$(bw unlock --raw || bw login --raw)"
+if [[ -z "$SESSION" ]]; then
+  echo "Não foi possível autenticar no Bitwarden." >&2
+  exit 3
+fi
+
+export BW_SESSION="$SESSION"
+
+# Processa cada item da lista
+for BW_SSH_ITEM_NAME in "${BW_SSH_ITEM_NAMES[@]}"; do
+  echo "Processando item: $BW_SSH_ITEM_NAME"
+
+  set +e
+  ITEM_DATA=$(bw get item "$BW_SSH_ITEM_NAME" --raw 2>/dev/null)
+  STATUS=$?
+  set -e
+
+  if [[ $STATUS -ne 0 || -z "$ITEM_DATA" ]]; then
+    echo "Aviso: não foi possível obter o item '$BW_SSH_ITEM_NAME'. Pulando..."
+    continue
+  fi
+
+  PRIVATE_KEY="$(jq -r "$BW_SSH_FIELD_NAME" <<< "$ITEM_DATA")"
+
+  if [[ -z "${PRIVATE_KEY:-}" || "$PRIVATE_KEY" == "null" ]]; then
+    echo "Aviso: chave '$BW_SSH_FIELD_NAME' não encontrada no item '$BW_SSH_ITEM_NAME'. Pulando..."
+    continue
+  fi
+
+  # Tenta ssh-add direto da memória
+  if ssh-add <(printf '%s\n' "$PRIVATE_KEY"); then
+    echo "Chave do item '$BW_SSH_ITEM_NAME' adicionada ao ssh-agent (sem gravar em disco)."
+    continue
+  fi
+
+  # Fallback: salvar temporariamente
+  if [[ -d "/dev/shm" && -w "/dev/shm" ]]; then
+    TEMP_KEY_FILE="$(mktemp /dev/shm/bwkey.XXXXXX)"
+  else
+    TEMP_KEY_FILE="$(mktemp)"
+  fi
+
+  TEMP_KEY_FILES+=("$TEMP_KEY_FILE")
+
+  umask 077
+  printf '%s\n' "$PRIVATE_KEY" > "$TEMP_KEY_FILE"
+  chmod 600 "$TEMP_KEY_FILE"
+
+  if ssh-add "$TEMP_KEY_FILE"; then
+    echo "Chave do item '$BW_SSH_ITEM_NAME' adicionada ao ssh-agent (via arquivo temporário)."
+  else
+    echo "Erro ao adicionar chave do item '$BW_SSH_ITEM_NAME' ao ssh-agent." >&2
+  fi
+done
