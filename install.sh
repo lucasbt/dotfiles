@@ -9,17 +9,24 @@ DOTFILES_DIR="dots"
 echo "📥 Clonando repositório em $DEST..."
 git clone "$REPO_URL" "$DEST"
 
-cd "$DEST/$DOTFILES_DIR"
+cd "$DEST"
 
-echo "📦 Fazendo backup dos arquivos existentes..."
+echo "📦 Fazendo backup dos arquivos/pastas existentes..."
 BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
-for file in .*; do
-  [[ "$file" =~ ^\.(\.|git|stow|DS_Store) ]] && continue
-  if [ -e "$HOME/$file" ] && [ ! -L "$HOME/$file" ]; then
-    echo "↪️  Movendo $file para backup"
-    mv "$HOME/$file" "$BACKUP_DIR/"
+cd "$DOTFILES_DIR"
+
+# Itera sobre TODOS os arquivos e diretórios (visíveis e ocultos)
+for item in * .*; do
+  # Pula . e ..
+  [[ "$item" == "." || "$item" == ".." ]] && continue
+
+  TARGET="$HOME/$item"
+
+  if [ -e "$TARGET" ] && [ ! -L "$TARGET" ]; then
+    echo "↪️  Movendo $TARGET para backup"
+    mv "$TARGET" "$BACKUP_DIR/"
   fi
 done
 
