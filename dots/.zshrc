@@ -44,7 +44,7 @@ fpath+=(~/.zsh/plugins/zsh-completions/src)
 # =========================
 # Bootora autocomplete
 # =========================
-fpath=("/home/lucas/.zsh/completions" $fpath)
+fpath=("~/.zsh/completions" $fpath)
 autoload -Uz compinit
 compinit -C  # -C skips security checks for speed
 
@@ -106,9 +106,9 @@ fi
 
 # Added by Bootora
 export PATH="/usr/local/go/bin:$PATH"
-export GOPATH="/home/lucas/go"
-export PATH="/home/lucas/.local/bin:$PATH"
-export PATH="/home/lucas/.cargo/bin:$PATH"
+export GOPATH="~/go"
+export PATH="~/.local/bin:$PATH"
+export PATH="~/.cargo/bin:$PATH"
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
