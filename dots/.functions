@@ -113,7 +113,11 @@ dockerrm() {
 
 # Network functions
 port() {
-    ss -tulpn | grep ":$1"
+    if [ -n "$1" ]; then
+        ss -tulpn | grep ":$1"
+    else
+        ss -tulpn
+    fi
 }
 
 # Show all the names (CNs and SANs) listed in the SSL certificate
