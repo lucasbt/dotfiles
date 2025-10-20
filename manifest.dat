@@ -1,0 +1,15 @@
+~/.ssh/config
+~/.aliases
+~/.functions
+~/.git-completion.bash
+~/.gitconfig
+~/.inputrc
+~/.nanorc
+~/.wgetrc
+~/.zshenv
+~/.zshrc
+~/.gitattributes
+~/.gitignore
+~/.local/bin/bw-add-ssh-key
+~/.config/Typora/ia_typora.css
+~/.config/Typora/ia_typora_night.css

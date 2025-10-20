@@ -4,7 +4,7 @@ set -e
 
 REPO_URL="https://github.com/lucasbt/dotfiles.git"
 DEST="$HOME/.dotfiles"
-DOTFILES_DIR="dots"
+MANIFEST_FILE="manifest.dat"
 
 # 🧰 Ensure GNU Stow is installed
 echo "🔍 Checking if GNU Stow is installed..."
@@ -48,75 +48,36 @@ fi
 
 cd "$DEST"
 
-# 🗃️ Backup existing conflicting files/directories
-echo "🗃️ Backing up existing files/folders in home directory..."
+# 🗃️ Backup existing files listed in manifest.dat
+echo "🗃️ Backing up existing files listed in $MANIFEST_FILE..."
 BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 
-cd "$DOTFILES_DIR"
+while IFS= read -r relative_path || [ -n "$relative_path" ]; do
+  # Ignora linhas vazias ou comentários
+  [[ -z "$relative_path" || "$relative_path" == \#* ]] && continue
 
-# Iterate over all visible and hidden files/folders
-for item in * .*; do
-  [[ "$item" == "." || "$item" == ".." ]] && continue
+  SOURCE_PATH="$DEST/$relative_path"
+  TARGET_PATH="$HOME/${relative_path#*/}"  # remove prefixo do tipo 'home/', 'ssh/', etc.
+  BACKUP_PATH="$BACKUP_DIR/${relative_path#*/}"
 
-  TARGET="$HOME/$item"
+  if [ -L "$TARGET_PATH" ]; then
+    echo "🧹 Removing symlink: $TARGET_PATH"
+    rm "$TARGET_PATH"
 
-  if [ -e "$TARGET" ] && [ ! -L "$TARGET" ]; then
-    echo "↪️  Moving existing $TARGET to backup"
-    mv "$TARGET" "$BACKUP_DIR/"
+  elif [ -f "$TARGET_PATH" ]; then
+    echo "↪️  Backing up $TARGET_PATH → $BACKUP_PATH"
+    mkdir -p "$(dirname "$BACKUP_PATH")"
+    mv "$TARGET_PATH" "$BACKUP_PATH"
   fi
-done
+  
+done < "$MANIFEST_FILE"
 
-cd "$DEST"
-
-# 🔗 Apply dotfiles using stow
+# 🔗 Aplicando dotfiles com Stow
 echo "🔗 Applying dotfiles with stow..."
-stow "$DOTFILES_DIR"
+stow *
 
-# 🧩 Create manual symbolic links for specific files outside stow's normal scope
-echo "🔗 Creating manual symbolic links..."
-
-STOWDIR="$DEST"
-
-# Ensure target directories exist before linking
-mkdir -p "$HOME/.local/bin"
-mkdir -p "$HOME/.ssh"
-
-# bw-add-ssh-key link
-SRC_BW_KEY="$STOWDIR/local/bw-add-ssh-key"
-DST_BW_KEY="$HOME/.local/bin/bw-add-ssh-key"
-
-if [ -e "$SRC_BW_KEY" ]; then
-  if [ -e "$DST_BW_KEY" ] && [ ! -L "$DST_BW_KEY" ]; then
-    echo "↪️  Backing up existing $DST_BW_KEY"
-    mv "$DST_BW_KEY" "$BACKUP_DIR/"
-  fi
-
-  ln -sf "$SRC_BW_KEY" "$DST_BW_KEY"
-  chmod +x $SRC_BW_KEY
-  echo "✅ Linked $DST_BW_KEY → $SRC_BW_KEY"
-else
-  echo "⚠️ Source $SRC_BW_KEY not found, skipping link."
-fi
-
-# ssh config link
-SRC_SSH_CONFIG="$STOWDIR/ssh/config"
-DST_SSH_CONFIG="$HOME/.ssh/config"
-
-if [ -e "$SRC_SSH_CONFIG" ]; then
-  if [ -e "$DST_SSH_CONFIG" ] && [ ! -L "$DST_SSH_CONFIG" ]; then
-    echo "↪️  Backing up existing $DST_SSH_CONFIG"
-    mv "$DST_SSH_CONFIG" "$BACKUP_DIR/"
-  fi
-
-  ln -sf "$SRC_SSH_CONFIG" "$DST_SSH_CONFIG"
-  echo "✅ Linked $DST_SSH_CONFIG → $SRC_SSH_CONFIG"
-else
-  echo "⚠️ Source $SRC_SSH_CONFIG not found, skipping link."
-fi
-
-# ✅ Done
+# ✅ Finalização
 echo "✅ Dotfiles applied successfully!"
-echo "📁 Backup saved at: $BACKUP_DIR "
-
+echo "📁 Backup saved at: $BACKUP_DIR"
 echo "➡️ Please run 'source ~/.zshrc' or restart your terminal to apply the changes."
