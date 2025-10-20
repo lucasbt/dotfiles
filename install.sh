@@ -73,9 +73,28 @@ while IFS= read -r relative_path || [ -n "$relative_path" ]; do
   
 done < "$MANIFEST_FILE"
 
-# 🔗 Aplicando dotfiles com Stow
-echo "🔗 Applying dotfiles with stow..."
-stow *
+# 🔍 Determinar diretórios válidos para aplicar com stow
+echo "🔍 Checking valid directories for stow..."
+STOW_DIRS=()
+
+while IFS= read -r relative_path || [ -n "$relative_path" ]; do
+  [[ -z "$relative_path" || "$relative_path" == \#* ]] && continue
+
+  dir="$(echo "$relative_path" | cut -d/ -f1)"
+
+  # Verifica se é diretório real no repositório
+  if [ -d "$DEST/$dir" ] && [[ ! " ${STOW_DIRS[*]} " =~ " $dir " ]]; then
+    STOW_DIRS+=("$dir")
+  fi
+done < "$MANIFEST_FILE"
+
+# 🔗 Aplicar dotfiles com stow
+if [ ${#STOW_DIRS[@]} -gt 0 ]; then
+  echo "🔗 Applying dotfiles with stow: ${STOW_DIRS[*]}"
+  stow -S --dotfiles "${STOW_DIRS[@]}"
+else
+  echo "⚠️ No valid directories found to apply with stow."
+fi
 
 # ✅ Finalização
 echo "✅ Dotfiles applied successfully!"
