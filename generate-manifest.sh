@@ -24,6 +24,7 @@ find "$DOTFILES_DIR" -type f \
   ! -path "$DOTFILES_DIR/README.md" \
   ! -path "$DOTFILES_DIR/.gitignore" \
   ! -path "$DOTFILES_DIR/generate-manifest.sh" \
+  ! -path "$DOTFILES_DIR/.stow-local-ignore" \
 | while read -r FILE; do
     # Remove the ".dotfiles/" prefix
     RELATIVE_PATH="${FILE#$DOTFILES_DIR/}"
