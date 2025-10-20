@@ -22,9 +22,8 @@ _darcs
 ^/LICENSE.*
 ^/COPYING
 
-\.gitignore
-\.stow-local-ignore
-\generate-manifest.sh
-\install.sh
-\Makefile
-\manifest.dat
+^/.stow-local-ignore
+^/generate-manifest.sh
+^/install.sh
+^/Makefile
+^/manifest.dat
