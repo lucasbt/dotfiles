@@ -42,13 +42,6 @@ source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fpath+=(~/.zsh/plugins/zsh-completions/src)
 
 # =========================
-# Bootora autocomplete
-# =========================
-fpath=("~/.zsh/completions" $fpath)
-autoload -Uz compinit
-compinit -C  # -C skips security checks for speed
-
-# =========================
 # Bootora environment
 # =========================
 export PATH="$HOME/.local/bin:$PATH"
@@ -115,6 +108,13 @@ export PATH="/usr/local/go/bin:$PATH"
 export GOPATH="~/go"
 export PATH="~/.local/bin:$PATH"
 export PATH="~/.cargo/bin:$PATH"
+
+# =========================
+# Bootora autocomplete
+# =========================
+fpath=(~/.zsh/completions $fpath)
+autoload -Uz compinit
+compinit -C  # -C skips security checks for speed
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
