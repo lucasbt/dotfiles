@@ -57,6 +57,7 @@
 [user]
 	name = Lucas Bittencourt
 	email = lucasbt@gmail.com
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJxuqwpoH0zLFnUqsRzzXwOSCxsmwDKV16NvGiylaYAb /dev/fd/63
 
 #[user]
 #  name =
@@ -95,6 +96,7 @@
 	pager = delta
 [commit]
     verbose = true
+	gpgsign = true
 	# https://help.github.com/articles/signing-commits-using-gpg/
 	#gpgsign = true
 [color]
@@ -182,3 +184,5 @@
 [url "git://bitbucket.org/"]
 	insteadOf = "bitbucket:"
 
+[gpg]
+	format = ssh
