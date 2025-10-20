@@ -1,8 +1,8 @@
 ~/.ssh/config
+~/.ssh/allowed_signers
 ~/.aliases
 ~/.functions
 ~/.git-completion.bash
-~/.gitconfig
 ~/.inputrc
 ~/.nanorc
 ~/.wgetrc
@@ -10,6 +10,7 @@
 ~/.zshrc
 ~/.gitattributes
 ~/.gitignore
+~/.gitconfig
 ~/.local/bin/bw-add-ssh-key
-~/.config/Typora/ia_typora.css
-~/.config/Typora/ia_typora_night.css
+~/.config/Typora/themes/ia_typora_night.css
+~/.config/Typora/themes/ia_typora.css
