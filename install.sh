@@ -73,27 +73,17 @@ while IFS= read -r relative_path || [ -n "$relative_path" ]; do
   
 done < "$MANIFEST_FILE"
 
-# 🔍 Determinar diretórios válidos para aplicar com stow
-echo "🔍 Checking valid directories for stow..."
-STOW_DIRS=()
+# 🔗 Aplicando dotfiles com Stow (excluindo .git)
+echo "🔗 Applying dotfiles with stow..."
 
-while IFS= read -r relative_path || [ -n "$relative_path" ]; do
-  [[ -z "$relative_path" || "$relative_path" == \#* ]] && continue
+# Coleta todos os diretórios no repositório (exceto .git)
+STOW_DIRS=($(find . -maxdepth 1 -type d ! -name '.git' ! -name '.' -printf '%P\n'))
 
-  dir="$(echo "$relative_path" | cut -d/ -f1)"
-
-  # Verifica se é diretório real no repositório
-  if [ -d "$DEST/$dir" ] && [[ ! " ${STOW_DIRS[*]} " =~ " $dir " ]]; then
-    STOW_DIRS+=("$dir")
-  fi
-done < "$MANIFEST_FILE"
-
-# 🔗 Aplicar dotfiles com stow
 if [ ${#STOW_DIRS[@]} -gt 0 ]; then
-  echo "🔗 Applying dotfiles with stow: ${STOW_DIRS[*]}"
-  stow -S --dotfiles "${STOW_DIRS[@]}"
+  echo "➡️ Applying stow to: ${STOW_DIRS[*]}"
+  stow "${STOW_DIRS[@]}"
 else
-  echo "⚠️ No valid directories found to apply with stow."
+  echo "⚠️ No directories found to apply with stow."
 fi
 
 # ✅ Finalização
