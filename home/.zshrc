@@ -5,17 +5,41 @@
 # Disable CTRL+S / CTRL+Q flow control
 stty -ixon
 
-# Key bindings for navigation and history search
-bindkey "^[[1;5C" forward-word
-bindkey "^[[1;5D" backward-word
-bindkey "^[[A" history-beginning-search-backward
-bindkey "^[[B" history-beginning-search-forward
-bindkey "^A" beginning-of-line
-bindkey "^E" end-of-line
-bindkey "^[[H" beginning-of-line
-bindkey "^[[F" end-of-line
-bindkey "^[[3~" delete-char
-bindkey "^@" fzf-file-widget  # CTRL+SPACE for fzf
+# ----------------------------------------
+# Navegação por palavras (Ctrl + → / ←)
+# ----------------------------------------
+bindkey "^[[1;5C" forward-word     # Ctrl + → para mover uma palavra à frente
+bindkey "^[[1;5D" backward-word    # Ctrl + ← para mover uma palavra atrás
+
+# ----------------------------------------
+# Busca no histórico com início da linha (setas ↑ ↓)
+# ----------------------------------------
+bindkey "^[[A" history-beginning-search-backward  # Seta ↑ busca comandos anteriores com prefixo igual
+bindkey "^[[B" history-beginning-search-forward   # Seta ↓ busca comandos seguintes com prefixo igual
+
+# ----------------------------------------
+# Mover para o início/fim da linha com Alt + ← / →
+# (Pode variar dependendo do terminal; veja `cat -v`)
+# ----------------------------------------
+bindkey "\e[1;3D" beginning-of-line  # Alt + ← vai para o início da linha
+bindkey "\e[1;3C" end-of-line        # Alt + → vai para o fim da linha
+
+# ----------------------------------------
+# Mover para início/fim da linha com Home/End
+# ----------------------------------------
+bindkey "^[[H" beginning-of-line     # Tecla Home
+bindkey "^[[F" end-of-line           # Tecla End
+
+# ----------------------------------------
+# Deletar caractere sob o cursor (Del)
+# ----------------------------------------
+bindkey "^[[3~" delete-char          # Tecla Delete
+
+# ----------------------------------------
+# FZF - fuzzy file finder com Ctrl + Espaço
+# ----------------------------------------
+bindkey "^@" fzf-file-widget         # Ctrl + Espaço abre fzf
+
 
 # =========================
 # History settings
