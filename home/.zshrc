@@ -12,8 +12,8 @@ export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
-[ -f /usr/share/fzf/shell/key-bindings.zsh ] && source /usr/share/fzf/shell/key-bindings.zsh
-[ -f /usr/share/fzf/shell/key-bindings.bash ] && source /usr/share/fzf/shell/key-bindings.bash
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
 
 # ----------------------------------------
 # Navegação por palavras (Ctrl + → / ←)
