@@ -5,6 +5,16 @@
 # Disable CTRL+S / CTRL+Q flow control
 stty -ixon
 
+# =========================
+# fzf loading
+# =========================
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+
+[ -f /usr/share/fzf/shell/key-bindings.zsh ] && source /usr/share/fzf/shell/key-bindings.zsh
+[ -f /usr/share/fzf/shell/key-bindings.bash ] && source /usr/share/fzf/shell/key-bindings.bash
+
 # ----------------------------------------
 # Navegação por palavras (Ctrl + → / ←)
 # ----------------------------------------
@@ -105,20 +115,6 @@ if [ -z "$TMUX" ] || [ -z "$SSH_AUTH_SOCK" ]; then
     load_agent
 fi
 export SSH_AUTH_SOCK
-
-# =========================
-# fzf lazy loading
-# =========================
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
-
-fzf_lazy() {
-    [ -f /usr/share/fzf/shell/key-bindings.zsh ] && source /usr/share/fzf/shell/key-bindings.zsh
-    [ -f /usr/share/fzf/shell/key-bindings.bash ] && source /usr/share/fzf/shell/key-bindings.bash
-}
-# load fzf only when pressing CTRL+T or first fzf command
-zle -N fzf-file-widget fzf_lazy
 
 # =========================
 # Starship prompt lazy init
