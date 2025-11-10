@@ -447,7 +447,7 @@ function awsstoptasks() {
 }
 
 # Bookmark functions
-go() {
+bm() {
     local bookmark=$(grep "^$1=" ~/.bookmarks 2>/dev/null | cut -d'=' -f2)
     if [ -n "$bookmark" ]; then
         cd "$bookmark"
