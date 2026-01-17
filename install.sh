@@ -89,4 +89,4 @@ fi
 # ✅ Finalização
 echo "✅ Dotfiles applied successfully!"
 echo "📁 Backup saved at: $BACKUP_DIR"
-echo "➡️ Please run 'source ~/.zshrc' or restart your terminal to apply the changes."
+echo "➡️ Please run 'source ~/.zshrc', 'source ~/.bashrc' or restart your terminal to apply the changes."
