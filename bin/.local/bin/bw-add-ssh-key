@@ -96,3 +96,5 @@ for BW_SSH_ITEM_NAME in "${BW_SSH_ITEM_NAMES[@]}"; do
     echo "Erro ao adicionar chave do item '$BW_SSH_ITEM_NAME' ao ssh-agent." >&2
   fi
 done
+
+alias bw-ssh='source ~/.dotfiles/bin/.local/bin/bw-add-ssh-key'

@@ -61,3 +61,62 @@ To undo the symlinks:
 ```bash
 make clean
 ```
+
+## 🔐 Load SSH keys from Bitwarden
+
+This repository provides a script that loads SSH private keys stored in **Bitwarden** directly into the `ssh-agent`, without persisting them to disk.
+
+Script location:
+
+```bash
+~/.dotfiles/bin/.local/bin/bw-add-ssh-key
+```
+
+### Requirements
+
+- `bw` (Bitwarden CLI)
+- `jq`
+- `ssh-agent` / `ssh-add`
+
+After installing the Bitwarden CLI, log in at least once:
+
+```bash
+bw login
+```
+
+**Usage (IMPORTANT)**
+
+⚠️ This script must be executed using `source` (or `.`).
+
+Running it in a subshell (`sh script.sh` or `./script.sh`) will start a temporary `ssh-agent` that is destroyed when the script exits.
+
+Run one of the following:
+
+```bash
+source ~/.dotfiles/bin/.local/bin/bw-add-ssh-key
+```
+
+### Behavior
+
+- Reuses an existing ssh-agent or starts one if needed
+- Unlocks/logs into Bitwarden
+- Loads SSH private keys directly into the agent (in-memory when possible)
+- Securely removes any temporary files
+- Logs out from Bitwarden on exit
+
+### Verification
+
+```bash
+ssh-add -l
+```
+
+### Alias (included)
+
+```bash
+alias bw-ssh='source ~/.dotfiles/bin/.local/bin/bw-add-ssh-key'
+```
+
+### Notes
+
+- Keys remain available only while the ssh-agent is running
+- Item names and fields can be adjusted directly in the script
