@@ -1,5 +1,49 @@
 #!/bin/bash
-# Bootora shell functions
+# Shell functions
+
+gclone()    { git clone "$1" && cd "$(basename "$1" .git)"; }
+
+dsh() { podman exec -it "$1" /bin/bash 2>/dev/null || podman exec -it "$1" /bin/sh; }
+
+jwt-decode() {
+  echo "$1" | cut -d '.' -f2 | base64 --decode 2>/dev/null | jq .
+}
+
+jswitch() {
+  local major=$1
+  local distro=$2
+ 
+  if [ -z "$major" ]; then
+    echo "Uso: jswitch <versao> [distribuicao]"
+    return 1
+  fi
+ 
+  local candidates=$(sdk list java | grep -e "installed")
+ 
+  # filtra pela major
+  candidates=$(echo "$candidates" | grep -e "${major}\.")
+ 
+  # filtra pela distro se fornecida
+  if [ -n "$distro" ]; then
+    candidates=$(echo "$candidates" | grep -i "$distro")
+  fi
+ 
+  # extrai a versão e pega a mais recente
+  local version=$(echo "$candidates" \
+    | awk '{print $NF}' \
+    | sort -r \
+    | head -n 1)
+ 
+  if [ -z "$version" ]; then
+    echo "Nenhuma versão encontrada para Java $major ${distro:+($distro)}"
+    return 1
+  fi
+ 
+  echo "Usando: $version"
+  sdk use java "$version"
+  java -version
+}
+
 # Update System
 update-all() {
     local exit_code=0
@@ -66,7 +110,7 @@ extract() {
 }
 
 # Create directory and cd into it
-mkd() {
+mkcd() {
     mkdir -p "$1" && cd "$1"
 }
 
@@ -158,6 +202,16 @@ port() {
     else
         ss -tulpn
     fi
+}
+
+port-kill() {
+  local pid
+  pid=$(lsof -ti tcp:"$1")
+  if [[ -n "$pid" ]]; then
+    kill -9 "$pid" && echo "Processo $pid na porta $1 encerrado."
+  else
+    echo "Nenhum processo encontrado na porta $1."
+  fi
 }
 
 # Show all the names (CNs and SANs) listed in the SSL certificate
@@ -472,4 +526,9 @@ bookmarks() {
     cat ~/.bookmarks | grep -v '^#' | while IFS='=' read -r name path; do
         printf "  %-15s %s\n" "$name" "$path"
     done
+}
+
+fcd() {
+  local dir
+  dir=$(find "${1:-.}" -type d 2>/dev/null | fzf +m) && cd "$dir"
 }

@@ -24,22 +24,33 @@ if [ -d ~/.bashrc.d ]; then
 fi
 unset rc
 
+export EDITOR=nano
+export VISUAL=code
+export PAGER=less
+export LESS='-R --quit-if-one-screen --no-init'
+export MANPAGER='less -X'
+
 # =========================
 # History settings (Bash)
 # =========================
 export HISTFILE=~/.bash_history
-export HISTSIZE=10000
-export HISTFILESIZE=10000
+export HISTSIZE=50000
+export HISTFILESIZE=100000
+export HISTTIMEFORMAT='%F %T '
 
 shopt -s histappend
 shopt -s cmdhist
 shopt -s lithist
+shopt -s cdspell dirspell autocd globstar
 
 export HISTCONTROL=ignoreboth:erasedups
 export HISTIGNORE="ls:cd:cd -:pwd:exit:clear"
 
 # Incremental history
 PROMPT_COMMAND="history -a; history -n; $PROMPT_COMMAND"
+
+# VA-API: Intel HD 4xxx (Haswell) — troque por "iHD" se usar driver moderno
+export LIBVA_DRIVER_NAME=i965
 
 # =========================
 # Load aliases and functions
@@ -58,7 +69,7 @@ fi
 # fzf configuration
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --color=dark'
 
 __fzf_lazy_load() {
   unbind 'C-t' 'C-r' 2>/dev/null
@@ -148,3 +159,27 @@ if [ -f /usr/share/bash-completion/bash_completion ]; then
 elif [ -f /etc/bash_completion ]; then
   source /etc/bash_completion
 fi
+
+# Dev exports =====================
+
+export JAVA_TOOL_OPTIONS="\
+  -XX:+UseG1GC \
+  -XX:MaxRAMPercentage=60.0 \
+  -Djava.awt.headless=true \
+  -Dfile.encoding=UTF-8"
+
+export MAVEN_OPTS="\
+  -Xmx4g \
+  -XX:+UseG1GC \
+  -XX:+TieredCompilation"
+
+export GRADLE_OPTS="\
+  -Xmx4g \
+  -XX:+UseG1GC \
+  -Dorg.gradle.daemon=true \
+  -Dorg.gradle.parallel=true \
+  -Dorg.gradle.caching=true"
+
+# Docker / Podman
+export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/podman/podman.sock"
+export BUILDAH_FORMAT=docker

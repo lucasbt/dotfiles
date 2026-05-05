@@ -8,6 +8,10 @@ alias week='date +%V'
 alias timer='start=$(date +%s); echo "Timer started. Stop with Ctrl-D."; echo "Initial time.........: $(date)"; { time cat; } >/dev/null 2>&1 ; end=$(date +%s); echo "Final time...........: $(date)"; echo "Total elapsed time...: $((end-start)) seconds"'
 alias dl="cd ~/Downloads"
 
+# VS Code
+alias c.='code .'
+alias cr='code --reuse-window'
+
 # Development aliases
 alias py='python3'
 alias pip='pip3'
@@ -19,13 +23,16 @@ alias bwssh='bw-add-ssh-key'
 alias g="git"
 alias gs='git status'
 alias ga='git add'
+alias gaa='git add -A'
 alias gc='git commit'
 alias gcm='git commit -m'
+alias gca='git commit --amend --no-edit'
 alias gcam='git commit -a -m'
 alias gcad='git commit -a --amend'
 alias gp='git push'
-alias gl='git log --oneline'
+alias gl='git log --oneline --graph --decorate --all -20'
 alias gd='git diff'
+alias gds='git diff --staged'
 alias gb='git branch'
 alias gco='git checkout'
 alias gcb='git checkout -b'
@@ -33,6 +40,9 @@ alias gm='git merge'
 alias gr='git rebase'
 alias gf='git fetch'
 alias gpl='git pull'
+alias gplr='git pull --rebase'
+alias gst='git stash'
+alias gstp='git stash pop'
 
 # Docker aliases
 alias d='docker'
@@ -46,6 +56,17 @@ alias dcup='docker-compose up -d'
 alias dcdown='docker-compose down'
 alias dclogs='docker-compose logs -f'
 
+# Podman
+alias p='podman'
+alias pc='podman-compose'
+alias pps='podman ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
+alias ppsa='podman ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
+alias plog='podman logs -f'
+alias pexec='podman exec -it'
+alias pclean='podman system prune -af'
+alias pimg='podman images'
+alias pbuild='buildah bud'
+
 # Kubernetes aliases
 alias k='kubectl'
 alias kgp='kubectl get pods'
@@ -57,16 +78,33 @@ alias kdd='kubectl describe deployment'
 alias kaf='kubectl apply -f'
 alias kdf='kubectl delete -f'
 
+# Java / Build
+alias mvnq='mvn -q'
+alias mvnci='mvn clean install -T 1C'
+alias mvnt='mvn test -q'
+alias mvnskip='mvn install -DskipTests -T 1C'
+alias gradle='./gradlew'
+alias gw='./gradlew'
+alias gwb='./gradlew build'
+alias gwt='./gradlew test'
+alias gwr='./gradlew bootRun'
+
+# SDKMAN
+alias sdkj='sdk use java'
+alias sdkl='sdk list java'
+
 # System aliases
 alias lse='eza -lh --group-directories-first --icons'
 alias lte='eza --tree --level=2 --long --icons --git'
 alias lta='lte -a'
 alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
 alias fd='fdfind'
+alias tree='tree -C'
+alias ls='ls --color=auto'
 alias l="ls -lhF --color"
-alias la="ls -lahF --color"
+alias la='ls -lahA --color=auto'
 alias lsd="ls -lhF --color | grep --color=never '^d'"
-alias ll='ls -alFh'
+alias ll='ls -lahF --color=auto --group-directories-first'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
@@ -81,6 +119,14 @@ alias ln='ln -iv'
 alias chmod='chmod --preserve-root'
 alias chown='chown --preserve-root'
 alias chgrp='chgrp --preserve-root'
+alias reload='source ~/.bashrc'
+alias path='echo $PATH | tr ":" "\n"'
+alias ports='ss -tulnp'
+alias meminfo='free -h && cat /proc/meminfo | grep -e "MemFree|Cached|Buffers"'
+alias cpuinfo='lscpu | grep -e "Model name|CPU\(s\)|Thread|Core"'
+alias diskinfo='df -h --exclude-type=tmpfs --exclude-type=devtmpfs'
+alias temps='sensors'
+alias top='btop'
 
 # Package management
 alias dnfi='sudo dnf install'
@@ -107,6 +153,10 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 alias diff='diff --color=auto'
+
+if command -v bat &>/dev/null; then
+  alias cat='bat'
+fi
 
 # System monitoring
 alias meminfo='free -m -l -t'
